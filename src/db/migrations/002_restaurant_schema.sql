@@ -78,5 +78,12 @@ BEGIN
       PRIMARY KEY (date, product_id)
     )', schema_name, schema_name);
 
+  -- Grant permissions to Supabase roles
+  EXECUTE format('GRANT USAGE ON SCHEMA %I TO anon, authenticated, service_role', schema_name);
+  EXECUTE format('GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA %I TO service_role', schema_name);
+  EXECUTE format('GRANT ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA %I TO service_role', schema_name);
+  EXECUTE format('GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA %I TO authenticated', schema_name);
+  EXECUTE format('GRANT SELECT ON ALL TABLES IN SCHEMA %I TO anon', schema_name);
+
   RAISE NOTICE 'Schema % created successfully', schema_name;
 END $$;
