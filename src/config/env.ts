@@ -21,6 +21,7 @@ const EnvSchema = z.object({
   ELEVENLABS_API_KEY: z.string().optional(),
   STRIPE_SECRET_KEY: z.string().optional(),
   META_VERIFY_TOKEN: z.string().optional(),
+  BASE_URL: z.string().url().optional(),
 });
 
 export type Config = {
@@ -33,6 +34,7 @@ export type Config = {
   stripe: { secretKey?: string };
   meta: { verifyToken?: string };
   deepgram: { apiKey: string };
+  baseUrl?: string;
 };
 
 export function loadConfig(): Config {
@@ -55,6 +57,7 @@ export function loadConfig(): Config {
     stripe: { secretKey: e.STRIPE_SECRET_KEY },
     meta: { verifyToken: e.META_VERIFY_TOKEN },
     deepgram: { apiKey: e.DEEPGRAM_API_KEY },
+    baseUrl: e.BASE_URL,
   };
 }
 

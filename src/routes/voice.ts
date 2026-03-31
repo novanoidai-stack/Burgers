@@ -1,5 +1,5 @@
 import expressWs from 'express-ws';
-import { createClient as createDeepgramClient } from '@deepgram/sdk';
+import { createClient as createDeepgramClient, LiveTranscriptionEvent } from '@deepgram/sdk';
 import { config } from '../config/env';
 
 /**
@@ -9,7 +9,15 @@ import { config } from '../config/env';
 export function applyVoiceRoutes(wsApp: expressWs.Application): void {
   wsApp.ws('/voice/:restaurantSlug', (ws, req) => {
     const { restaurantSlug } = req.params;
+
+    if (!/^[a-z0-9_]+$/.test(restaurantSlug)) {
+      ws.close(1008, 'Invalid tenant');
+      return;
+    }
+
     console.log(`[voice] New call for tenant: ${restaurantSlug}`);
+
+    let dgFinished = false;
 
     const deepgram = createDeepgramClient(config.deepgram.apiKey);
 
@@ -29,9 +37,8 @@ export function applyVoiceRoutes(wsApp: expressWs.Application): void {
       console.log(`[voice][${restaurantSlug}] Deepgram connection opened`);
     });
 
-    dgLive.on('transcript', (data) => {
-      const transcript = (data as { channel?: { alternatives?: Array<{ transcript?: string }> } })
-        ?.channel?.alternatives?.[0]?.transcript ?? '';
+    dgLive.on('transcript', (data: LiveTranscriptionEvent) => {
+      const transcript = data?.channel?.alternatives?.[0]?.transcript ?? '';
       if (transcript.trim()) {
         console.log(`[voice][${restaurantSlug}] Transcript: "${transcript}"`);
       }
@@ -50,7 +57,7 @@ export function applyVoiceRoutes(wsApp: expressWs.Application): void {
           dgLive.send(audioBuffer.buffer.slice(audioBuffer.byteOffset, audioBuffer.byteOffset + audioBuffer.byteLength) as ArrayBuffer);
         } else if (msg.event === 'stop') {
           console.log(`[voice][${restaurantSlug}] Call ended`);
-          dgLive.finish();
+          if (!dgFinished) { dgFinished = true; dgLive.finish(); }
         }
       } catch {
         // Malformed message — ignore
@@ -58,7 +65,7 @@ export function applyVoiceRoutes(wsApp: expressWs.Application): void {
     });
 
     ws.on('close', () => {
-      dgLive.finish();
+      if (!dgFinished) { dgFinished = true; dgLive.finish(); }
       console.log(`[voice][${restaurantSlug}] WebSocket closed`);
     });
   });
