@@ -33,7 +33,13 @@ describe('loadConfig', () => {
   });
 
   it('uses PORT env var when set', () => {
+    process.env.SUPABASE_URL = 'https://abc.supabase.co';
+    process.env.SUPABASE_ANON_KEY = 'anon-key';
+    process.env.SUPABASE_SERVICE_KEY = 'service-key';
+    process.env.JWT_SECRET = 'a-secret-that-is-32-chars-minimum!';
+    process.env.DEEPGRAM_API_KEY = 'dg-key';
     process.env.PORT = '4000';
+
     const config = loadConfig();
     expect(config.port).toBe(4000);
   });
