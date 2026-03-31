@@ -1,3 +1,4 @@
+// Validates process.env at startup. Import `config` in application code; call `loadConfig()` in tests.
 import { z } from 'zod';
 
 export class ConfigError extends Error {
@@ -37,8 +38,10 @@ export type Config = {
 export function loadConfig(): Config {
   const result = EnvSchema.safeParse(process.env);
   if (!result.success) {
-    const missing = result.error.issues.map(i => i.path.join('.')).join(', ');
-    throw new ConfigError(`Missing or invalid env vars: ${missing}`);
+    const issues = result.error.issues
+      .map(i => `${i.path.join('.')}: ${i.message}`)
+      .join('; ');
+    throw new ConfigError(`Invalid env vars — ${issues}`);
   }
 
   const e = result.data;

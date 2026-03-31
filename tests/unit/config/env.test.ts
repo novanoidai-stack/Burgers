@@ -27,6 +27,11 @@ describe('loadConfig', () => {
   });
 
   it('throws ConfigError when SUPABASE_URL is missing', () => {
+    // Set all required vars explicitly, then remove the one we're testing
+    process.env.SUPABASE_ANON_KEY = 'anon-key';
+    process.env.SUPABASE_SERVICE_KEY = 'service-key';
+    process.env.JWT_SECRET = 'a-secret-that-is-32-chars-minimum!';
+    process.env.DEEPGRAM_API_KEY = 'dg-key';
     delete process.env.SUPABASE_URL;
 
     expect(() => loadConfig()).toThrow(ConfigError);
