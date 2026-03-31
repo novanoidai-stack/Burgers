@@ -13,6 +13,8 @@ jest.mock('@supabase/supabase-js', () => ({
 describe('getTenantClient', () => {
   it('creates a client scoped to the restaurant schema', () => {
     const client = getTenantClient('001') as unknown as Record<string, unknown>;
+    expect(client.__url).toBe(process.env.SUPABASE_URL);
+    expect(client.__key).toBe(process.env.SUPABASE_SERVICE_KEY);
     expect(client.__options).toMatchObject({ db: { schema: 'restaurant_001' } });
   });
 
