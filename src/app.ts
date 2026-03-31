@@ -3,7 +3,7 @@ import healthRouter from './routes/health';
 
 export function createApp() {
   const app = express();
-  app.use(express.json());
+  app.use(express.json({ limit: '50kb' }));
 
   app.use(healthRouter);
 
