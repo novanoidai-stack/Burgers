@@ -1,7 +1,7 @@
 // tests/unit/middleware/auth.test.ts
 import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
-import { requireTenant, AuthError } from '../../../src/middleware/auth';
+import { requireTenant } from '../../../src/middleware/auth';
 
 const JWT_SECRET = process.env.JWT_SECRET!;
 
@@ -43,7 +43,7 @@ describe('requireTenant middleware', () => {
     requireTenant(req, res as Response, next);
 
     expect(res.status).toHaveBeenCalledWith(401);
-    expect(next).not.toHaveBeenCalledWith();
+    expect(next).not.toHaveBeenCalled();
   });
 
   it('returns 401 when token is expired', () => {
@@ -53,6 +53,7 @@ describe('requireTenant middleware', () => {
     requireTenant(req, res as Response, next);
 
     expect(res.status).toHaveBeenCalledWith(401);
+    expect(next).not.toHaveBeenCalled();
   });
 
   it('returns 401 when token has no tenant claim', () => {
@@ -62,5 +63,16 @@ describe('requireTenant middleware', () => {
     requireTenant(req, res as Response, next);
 
     expect(res.status).toHaveBeenCalledWith(401);
+    expect(next).not.toHaveBeenCalled();
+  });
+
+  it('returns 401 when token tenant claim has invalid format', () => {
+    const token = makeToken({ tenant: 'invalid slug!' });
+    const req = mockReq(token) as Request;
+
+    requireTenant(req, res as Response, next);
+
+    expect(res.status).toHaveBeenCalledWith(401);
+    expect(next).not.toHaveBeenCalled();
   });
 });
