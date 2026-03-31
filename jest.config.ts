@@ -9,7 +9,12 @@ const config: Config = {
   coverageThreshold: {
     global: { branches: 70, functions: 80, lines: 80 }
   },
-  setupFiles: ['<rootDir>/tests/setup.ts']
+  setupFiles: ['<rootDir>/tests/setup.ts'],
+  globals: {
+    'ts-jest': {
+      tsconfig: 'tsconfig.test.json'
+    }
+  }
 };
 
 export default config;
