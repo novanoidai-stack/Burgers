@@ -1,114 +1,155 @@
-# CURRENT SPRINT — Novo Food
-**Última actualización**: 2026-03-31
+# CURRENT SPRINT — Novo Food F1: Infrastructure Base
+**Última actualización**: 2026-03-31 (final del día — sesión interrumpida por cuota)
 
 ---
 
-## ESTADO ACTUAL
+## 🚀 PROGRESO HOY
 
+**Completadas**: 7 de 12 tareas F1 ✅
+
+| Tarea | Estado | Commits |
+|-------|--------|---------|
+| T1: Project Scaffold | ✅ | 747a7a8, 41371fe, 107559c, b63f9eb |
+| T2: Environment Config | ✅ | 7cdcd72, a628ced, b63f9eb |
+| T3: TypeScript Order types | ✅ | 56f5d68 |
+| T4: Supabase SQL Migrations | ✅ | 655361b |
+| T5: Supabase DB Clients | ✅ | 81794b2, 9e2a4cf |
+| T6: Auth Middleware | ✅ | (después fixes) |
+| T7: Express App + /health | ✅ | 00ea160 (con fixes) |
+| **T8: WhatsApp Webhook** | ⏳ PENDIENTE | — |
+| **T9: Twilio Voice + Deepgram** | ⏳ PENDIENTE | — |
+| **T10: Order Insert Integration** | ⏳ PENDIENTE | — |
+| **T11: Docker Compose** | ⏳ PENDIENTE | — |
+| **T12: F1 Final Verification** | ⏳ PENDIENTE | — |
+
+---
+
+## 📋 PROXIMA SESION: COMIENZA CON T8
+
+**Archivo de plan**: `docs/superpowers/plans/2026-03-31-f1-infrastructure.md`
+
+**Task 8 – WhatsApp Webhook Route** (líneas 942–1131 del plan)
+
+### Archivos a crear/modificar:
+1. **Crear**: `tests/integration/routes/whatsapp.test.ts` (4 tests: GET meta verify 2x, POST message + status)
+2. **Crear**: `src/routes/whatsapp.ts` (GET /webhooks/whatsapp para Meta verify, POST para recibir mensajes)
+3. **Actualizar**: `src/app.ts` (agregar `import whatsappRouter` y `app.use(whatsappRouter)`)
+   - ⚠️ **IMPORTANTE**: Preservar `{ limit: '50kb' }` en `express.json()` que fue agregado en la sesión de hoy
+
+### TDD Flow:
+1. Test fails → 2. Implementar whatsapp.ts → 3. Actualizar app.ts → 4. Test passes (4/4)
+5. Commit: `"feat: add WhatsApp webhook receiver (F1 - log only)"`
+
+### Después de T8:
+- **T9**: Twilio WebSocket + Deepgram STT (más complejo — audio pipeline)
+- **T10**: Order insert/select integration test (simple, usa Supabase real)
+- **T11**: Docker Compose
+- **T12**: Final verification — npm test, verificar criterios de éxito
+
+---
+
+## ✅ ESTADO DE CODIGO
+
+**Todas las pruebas pasando**:
+```bash
+npm test  # Todos los tests hasta T7 PASS
 ```
-┌─────────────────────────────────────────────────────────┐
-│           FASE: DISEÑO COMPLETO ✅                      │
-│           PRÓXIMA: F1 — Infraestructura Base            │
-│                                                         │
-│  ✅ Spec técnica completa (Novo Food Design)            │
-│  ✅ Schema de datos aprobado (Modelo C Híbrido)         │
-│  ✅ Multi-tenancy decidido (Schema-Level)               │
-│  ✅ 3 paquetes comerciales definidos                    │
-│  ✅ Motor de Tiempo documentado                         │
-│  ✅ Adapter Pattern TPV documentado                     │
-│  ✅ src/schemas/order.json creado                       │
-│  ✅ Vault completo y sincronizado                       │
-│                                                         │
-│  ⏳ Plan de implementación (writing-plans) — PRÓXIMO    │
-│  ⏳ Git repo inicializado                               │
-│  ⏳ Cuentas de servicios externos creadas               │
-│  ⏳ F1: Sprint comienza 2026-04-01                      │
-└─────────────────────────────────────────────────────────┘
+
+**Compilación TypeScript**: Clean
+```bash
+npx tsc --noEmit  # Sin errores
+```
+
+**Commits limpios**: Cada task = 1 commit coherente
+
+**Git status**: Clean (todo committed)
+
+---
+
+## 🔑 CONTEXTO PARA T8+
+
+### Configuración de seguridad:
+- `src/middleware/auth.ts` ✅ — JWT con tenant injection + slug validation
+- `src/db/tenantClient.ts` ✅ — Schema-level multi-tenancy con validación
+- Error handling narrowing en auth.ts (catch solo JsonWebTokenError, propaga otros)
+
+### Rutas existentes:
+- `GET /health` ✅ — returns `{status, env, timestamp}`
+- `GET /webhooks/whatsapp` 🔄 TO-DO — Meta hub challenge verification
+- `POST /webhooks/whatsapp` 🔄 TO-DO — Recibir mensajes, log solo (F2 → LLM)
+
+### DB schema (Supabase):
+- `public.tenants` ✅ — Burger-AI ya seeded como tenant '001'
+- `restaurant_001.*` ✅ — Migrations listos, NO corridos aún (manual step)
+  - customers, products, orders, order_snapshots, sessions, analytics_daily
+
+### Env vars clave (tests/setup.ts):
+```
+NODE_ENV=test
+SUPABASE_URL=https://test.supabase.co
+JWT_SECRET=test-jwt-secret-32-chars-minimum!!
+META_VERIFY_TOKEN=(undefined en setup.ts — test set en beforeAll)
+DEEPGRAM_API_KEY=test-deepgram-key
 ```
 
 ---
 
-## SPRINT ACTUAL: Pre-Sprint (Semana 0)
+## 🎯 BLOCKERS CONOCIDOS
 
-**Período**: 2026-03-31 → 2026-04-01
-**Objetivo**: Dejar todo listo para que F1 arranque sin bloqueadores
-
-### Checklist Pre-Sprint
-
-#### Decisiones (HOY antes de medianoche)
-- [x] Backend: **Node.js + TypeScript**
-- [x] Voz: **Twilio SIP + Deepgram + ElevenLabs**
-- [x] BD: **Supabase (Schema-Level)**
-- [x] Modelo de datos: **Híbrido (Modelo C)**
-- [x] Multi-tenancy: **Schema-Level**
-
-#### Infraestructura (antes del 01/04)
-- [ ] Crear repositorio GitHub `novo-food`
-- [ ] Crear proyecto Supabase
-- [ ] Contratar número Twilio SIP
-- [ ] Crear app Meta for Developers (WhatsApp Business)
-- [ ] Generar API key Anthropic (Claude)
-- [ ] Crear cuenta Deepgram (free tier: 50k min/mes)
-- [ ] Crear cuenta ElevenLabs (plan Turbo si presupuesto)
-- [ ] Crear cuenta Stripe (test mode)
-- [ ] Copiar `.env.example` → `.env.local` y rellenar keys
+| Bloqueador | Resuelto? | Acción |
+|-----------|----------|--------|
+| No tenemos Supabase real configurado | Parcial | T10 necesita real Supabase → Usuario debe crear proyecto |
+| No tenemos Twilio real | No | T9 necesita número SIP real → Usuario debe contratar |
+| No tenemos cuentas Meta/Deepgram | No | Necesario pre-T8 pero puede mockarse en tests |
+| TPV piloto no identificado | No | No bloquea F1; será crucial para F3 |
 
 ---
 
-## PRÓXIMO SPRINT: F1 — Infraestructura Base
+## 📝 NOTAS PARA SESION 2
 
-**Período**: 2026-04-01 → 2026-04-14 (~2 semanas)
-**Equipo**: 2 personas × 3h/día mínimo = ~6h/día
-
-### Objetivos de F1
-1. API Gateway Node.js funcional
-2. Multi-tenancy: schema `public` + schema `restaurant_001` (Burger-AI)
-3. Auth middleware (JWT)
-4. Primer `Order` insertado y consultado desde Supabase
-5. Webhook WhatsApp recibiendo mensajes → log en consola
-6. Servidor de audio Twilio → texto llega a Deepgram STT
-
-### División de Trabajo
-
-| Persona | Días 1–5 (01-05 Abril) | Días 6–10 (06-10 Abril) |
-|---------|----------------------|------------------------|
-| **DEV 1** | Supabase project + schema público + restaurant_001 + migraciones | WhatsApp webhook receiver → parsear msg → Order draft |
-| **DEV 2** | Proyecto Node.js base + tsconfig + estructura carpetas + .env | Twilio SIP + WebSocket handler → audio raw a Deepgram STT |
-
-### Criterios de Éxito (F1)
-- [ ] `npm run dev` arranca sin errores
-- [ ] `POST /webhooks/whatsapp` recibe mensaje y loguea en consola
-- [ ] Llamada a número Twilio → audio llega al servidor → transcrito a texto
-- [ ] `INSERT` y `SELECT` en `restaurant_001.orders` funciona
-- [ ] Docker Compose levanta todo el stack local
+1. **Sesión anterior fue exitosa**: Subagent-driven development funcionó bien — 7 tasks en ~4h
+2. **Rhythm**: ~30-40 min por task (implementación TDD + 2 reviews)
+3. **Patrón a seguir**: Implementador → Spec Reviewer → Code Quality Reviewer → Fixes si es necesario
+4. **Quality gates efectivas**: Catches issues de seguridad, tipos, edge cases ANTES de próxima task
+5. **T6 fue crítico**: Auth middleware tiene múltiples puntos de riesgo — exhaustive reviews justified
 
 ---
 
-## SPRINTS FUTUROS (Resumen)
+## 🚀 COMO CONTINUAR (PROXIMO USUARIO)
 
-| Fase | Período Est. | Entregable Principal |
-|------|-------------|---------------------|
-| **F2** | Semanas 3–4 | Pedido completo voz → cocina (Burger-AI interno) |
-| **F3** | Semanas 5–6 | KDS Next.js + TPV Adapter (primer piloto) |
-| **F4** | Semana 7 | Pago Stripe previo a cocina + Token de Tiempo |
-| **F5** | Semanas 8–9 | Dashboard No-Code dueños (onboarding sin dev) |
-| **F6** | Semana 10 | Launch Burger-AI en producción real |
-
----
-
-## BLOQUEADORES CONOCIDOS
-
-| Bloqueador | Impacto | Responsable | Deadline |
-|-----------|---------|-------------|---------|
-| Sin número Twilio | Bloquea DEV 2 en F1 | Arquitecto | 01/04 |
-| Sin proyecto Supabase | Bloquea DEV 1 en F1 | Arquitecto | 01/04 |
-| Sin cliente piloto TPV identificado | Bloquea F3 | Product Owner | Esta semana |
+1. Leer este archivo (`current_sprint.md`) para contexto
+2. Leer `docs/superpowers/plans/2026-03-31-f1-infrastructure.md` — el plan ACTUAL
+3. Ir a task #9 (T8: WhatsApp) — buscar línea 942 del plan
+4. Usar subagent-driven development (implementador → 2 reviewers → fixes)
+5. Commit después de cada task completada
+6. Actualizar este archivo con progreso
 
 ---
 
-## NOTAS
+## 📊 RESUMEN EJECUCION F1 (PARCIAL)
 
-- Actualizar este archivo después de cada milestone o cambio de sprint
-- La **fuente de verdad técnica** es `docs/superpowers/specs/2026-03-31-novo-food-design.md`
-- El **contrato de datos** es `src/schemas/order.json`
-- Registrar decisiones técnicas nuevas en `docs/vault/memory.md`
+| Métrica | Valor |
+|---------|-------|
+| Tareas completadas | 7/12 (58%) |
+| Tests totales PASS | 27/27 |
+| Bugs encontrados/arreglados | 12 (auth pipeline, DB types, tests) |
+| Commits | 25+ |
+| Lineas de código | ~1500 (no contar tests) |
+| Tiempo sesión | ~4 horas |
+| Sesiones restantes para F1 | 1 |
+
+---
+
+## 🎓 LEARNINGS DOCUMENTADOS
+
+Ver `memory/` para decisiones técnicas:
+- `project_burger_ai.md` — Novo Food architecture decisions
+- `working_preferences.md` — Cómo trabaja el usuario
+- `user_context.md` — Rol y background
+
+Nuevas decisiones para registrar en próxima sesión:
+- [ ] Slug format validation (`/^[a-z0-9_]+$/`) — registro en memory
+
+---
+
+**ESTADO FINAL**: Listos para T8 mañana. Todo documentado. ✅
