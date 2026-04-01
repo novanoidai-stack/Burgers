@@ -1,5 +1,9 @@
 // Validates process.env at startup. Import `config` in application code; call `loadConfig()` in tests.
 import { z } from 'zod';
+import dotenv from 'dotenv';
+
+// Load environment variables from .env.local file
+dotenv.config({ path: '.env.local' });
 
 export class ConfigError extends Error {
   constructor(message: string) {
