@@ -201,8 +201,17 @@ export async function processMessage(
   if (assistantMsg.tool_calls && assistantMsg.tool_calls.length > 0) {
     history.push(assistantMsg as unknown as LLMMessage);
 
+    // P0 FIX: Deep clone session to avoid race condition
+    const sessionCopy = {
+      ...session,
+      order_draft: {
+        ...session.order_draft,
+        items: [...session.order_draft.items], // Deep clone array to prevent mutation
+      },
+    };
+
     for (const call of assistantMsg.tool_calls) {
-      const { toolResult, orderUpdate, triggerPayment: tp } = applyToolCall(call as unknown as ToolCall, { ...session, order_draft: orderDraftUpdate }, products);
+      const { toolResult, orderUpdate, triggerPayment: tp } = applyToolCall(call as unknown as ToolCall, sessionCopy, products);
       if (tp) triggerPayment = true;
       if (orderUpdate.items !== undefined) orderDraftUpdate.items = orderUpdate.items;
       if (orderUpdate.status !== undefined) orderDraftUpdate.status = orderUpdate.status;
