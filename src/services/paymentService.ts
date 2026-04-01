@@ -5,7 +5,7 @@ import { DraftItem } from '../types/conversation';
 function getStripeClient(): Stripe {
   const key = config.stripe.secretKey;
   if (!key) throw new Error('STRIPE_SECRET_KEY not configured');
-  return new Stripe(key, { apiVersion: '2026-03-25.dahlia' });
+  return new Stripe(key);
 }
 
 export function calculateTotal(items: DraftItem[]): number {

@@ -35,7 +35,7 @@ export function buildSystemPrompt(restaurantName: string, products: ProductRow[]
     .map(cat => {
       const items = products.filter(p => p.category === cat);
       if (!items.length) return '';
-      return `${labels[cat]}:\n${items.map(p => `  - ${p.name} (ID: ${p.id}): ${p.price.toFixed(2)}€ — ${p.description}`).join('\n')}`;
+      return `${labels[cat]}:\n${items.map(item => `  - ${item.name} (ID: ${item.id}): ${item.price.toFixed(2)}€ — ${item.description}`).join('\n')}`;
     })
     .filter(Boolean)
     .join('\n\n');
