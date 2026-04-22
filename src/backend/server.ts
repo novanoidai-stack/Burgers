@@ -4,6 +4,7 @@ import { config } from './config';
 import { logger } from './middleware/logger';
 import { attachErrorHandler } from './middleware/errorHandler';
 import { healthRouter } from './routes/health';
+import { testConnection as testSupabaseConnection } from './services/supabase';
 
 export function createApp(): Express {
   const app = express();
@@ -37,8 +38,11 @@ export function createApp(): Express {
   return app;
 }
 
-export function startServer(): void {
+export async function startServer(): Promise<void> {
   try {
+    // Test Supabase connection
+    await testSupabaseConnection();
+
     const app = createApp();
 
     app.listen(config.port, () => {
