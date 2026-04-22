@@ -7,40 +7,26 @@
 ## ✅ Completado
 
 - Repositorio creado y limpiado
-
 - .gitignore configurado
-
 - package.json con dependencias base
-
 - tsconfig.json configurado (strict mode)
-
 - .env.example creado
-
-- Documento maestro creado
-
-- Guía definitiva de desarrollo creada
+- Documento maestro (README.md) creado
+- CLAUDE.md actualizado
+- Documentación en memory/ (DECISIONS, ARCHITECTURE, INVENTORY_ENGINE, INTEGRATION_LOGIC)
+- Express server básico y estructura de carpetas
 
 ## 🔨 En Progreso
 
 - Limpieza del repositorio (eliminar archivos obsoletos)
-
-- Actualización de documentación (README, CLAUDE.md)
-
-- Preparación de cuentas externas (Meta, Supabase, Anthropic)
+- Preparación de cuentas externas (Meta, Supabase, Anthropic, Retell AI, Stripe)
 
 ## 🔲 Próximo (Semana 1)
-
-- Express server básico (GET /health)
-
-- Estructura completa de carpetas /src/backend/
-
-- Conexión a Supabase (test de conexión)
-
-- Webhook WhatsApp (recibir mensajes)
-
-- Integración Claude (procesar mensajes)
-
-- Respuesta WhatsApp (enviar mensajes)
+3. **Configuración Supabase** (conexión, test de BD)
+4. **Webhook WhatsApp** (recibir y parsear mensajes de Meta)
+5. **Integración Claude** (procesar mensajes con Claude API)
+6. **Respuesta WhatsApp** (enviar mensajes de vuelta)
+7. **Tests básicos** (webhook, integración Claude)
 
 ## ⚠️ Blockers
 
@@ -48,8 +34,10 @@
 
 ## 📝 Notas
 
-- Stack de voz cambiado de Twilio/Deepgram/ElevenLabs a Retell AI
-
-- Timeline ajustado de 4 sprints (28 días) a 7 semanas (49 días)
-
-- Equipo: 1 desarrollador con Claude Code
+- Stack de voz definitivo: **Retell AI** (cambio del plan antiguo: Twilio/Deepgram/ElevenLabs)
+- Timeline: **7 semanas** (cambio del plan antiguo: 4 sprints/28 días)
+- Equipo: **1 desarrollador** con Claude Code
+- Todas las decisiones técnicas están BLOQUEADAS en memory/DECISIONS.md
+- Arquitectura detallada en memory/ARCHITECTURE.md
+- Motor de inteligencia de cocina listo en memory/INVENTORY_ENGINE.md
+- Lógica de integración en memory/INTEGRATION_LOGIC.md

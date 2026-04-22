@@ -1,10 +1,14 @@
-import { Router } from 'express';
-import { config } from '../config/env';
+import { Router, Request, Response } from 'express';
 
-const router = Router();
+const healthRouter = Router();
 
-router.get('/health', (_req, res) => {
-  res.json({ status: 'ok', env: config.env, timestamp: new Date().toISOString() });
+healthRouter.get('/health', (req: Request, res: Response) => {
+  res.json({
+    status: 'ok',
+    timestamp: new Date().toISOString(),
+    uptime: process.uptime(),
+    version: '1.0.0',
+  });
 });
 
-export default router;
+export { healthRouter };
