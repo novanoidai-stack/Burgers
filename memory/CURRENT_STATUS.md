@@ -1,32 +1,30 @@
 # Estado Actual del Proyecto — Novo Burger
 
-**Última actualización**: 2026-04-20
+**Última actualización**: 2026-04-22 17:45
 
-**Fase actual**: Preparación Semana 1
+**Fase actual**: Semana 1 — WhatsApp MVP (DÍA 1 ✅ Completado)
 
-## ✅ Completado
+## ✅ Completado — Semana 1 / Día 1
 
-- Repositorio creado y limpiado
-- .gitignore configurado
-- package.json con dependencias base
-- tsconfig.json configurado (strict mode)
-- .env.example creado
-- Documento maestro (README.md) creado
-- CLAUDE.md actualizado
-- Documentación en memory/ (DECISIONS, ARCHITECTURE, INVENTORY_ENGINE, INTEGRATION_LOGIC)
-- Express server básico y estructura de carpetas
+### Tareas Día 1
+- ✅ **Tarea 1.1** — Servidor Express mínimo funcionando en puerto 3001
+- ✅ **Tarea 1.2** — Config de entorno (src/backend/config.ts)
+- ✅ **Tarea 1.3** — Logger Winston con redact de credenciales
+- ✅ **Tarea 1.4** — Error handler middleware global
+- ✅ **Tarea 1.5** — Index.ts (entry point)
+- ✅ **Tarea 1.6** — .env.local creado con valores mínimos
 
-## 🔨 En Progreso
+### Verificación
+```bash
+✅ npm install — 501 dependencias instaladas
+✅ npm run dev — Servidor arranca sin errores
+✅ GET /health — Responde 200 con { status, timestamp, uptime, version }
+```
 
-- Limpieza del repositorio (eliminar archivos obsoletos)
-- Preparación de cuentas externas (Meta, Supabase, Anthropic, Retell AI, Stripe)
-
-## 🔲 Próximo (Semana 1)
-3. **Configuración Supabase** (conexión, test de BD)
-4. **Webhook WhatsApp** (recibir y parsear mensajes de Meta)
-5. **Integración Claude** (procesar mensajes con Claude API)
-6. **Respuesta WhatsApp** (enviar mensajes de vuelta)
-7. **Tests básicos** (webhook, integración Claude)
+## 🔨 Próximo (Semana 1 / Día 2)
+- **Configuración Supabase** (crear tablas, conexión BD)
+- **Servicio Supabase** (funciones CRUD)
+- **Test de conexión** (verifica DB conectada)
 
 ## ⚠️ Blockers
 
