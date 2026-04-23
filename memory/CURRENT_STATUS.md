@@ -1,8 +1,8 @@
 # Estado Actual del Proyecto — Novo Burger
 
-**Última actualización**: 2026-04-23 13:12
+**Última actualización**: 2026-04-23 13:25
 
-**Fase actual**: Semana 1 — WhatsApp MVP (DÍA 2 ✅ COMPLETADO, DÍA 3 EMPEZANDO)
+**Fase actual**: Semana 1 — WhatsApp MVP (DÍA 2 ✅ COMPLETADO, DÍA 3 ~80% CÓDIGO LISTO)
 
 ---
 
@@ -24,34 +24,48 @@
 
 ---
 
-## 🔨 En Progreso — Semana 1 / Día 2 (90% listo)
+## ✅ Completado — Semana 1 / Día 2
 
-### ✅ Código preparado
-- ✅ **Tarea 2.2** — [src/backend/services/supabase.ts](src/backend/services/supabase.ts)
-  - 8 funciones CRUD (findOrCreateUser, getMenuItems, createOrder, getOrder, updateOrderStatus, saveConversation, getConversation, testConnection)
-  - Manejo completo de errores con try/catch
-  - Logging con Winston
+- ✅ SQL ejecutado en Supabase (5 tablas creadas)
+- ✅ RLS deshabilitado en todas las tablas
+- ✅ Servicio Supabase funcionando ✅ 11 menu items cargados
+- ✅ Test: `npm run dev` → "✅ Supabase connected (11 menu items)"
 
-- ✅ **Tarea 2.3** — [src/backend/server.ts](src/backend/server.ts) actualizado
-  - Llama a `testSupabaseConnection()` al arrancar
-  - startServer() ahora es async
+## 🔨 En Progreso — Semana 1 / Día 3 (~80% código listo)
+
+### ✅ Código completado — Día 3
+
+- ✅ **Tarea 3.1** — [src/backend/services/whatsapp.ts](src/backend/services/whatsapp.ts)
+  - `verifyWebhook()` — Verifica token de Meta
+  - `parseWebhookMessage()` — Extrae mensaje del webhook
+  - `sendWhatsAppMessage()` — POST a Meta API para enviar mensajes
+  - Logging detallado con Winston
+
+- ✅ **Tarea 3.2** — [src/backend/routes/whatsapp.ts](src/backend/routes/whatsapp.ts)
+  - GET `/webhooks/whatsapp` — Verificación de Meta
+  - POST `/webhooks/whatsapp` — Recibir mensajes + responde con echo
+  - Respuesta rápida (200) a Meta, procesamiento async
+
+- ✅ **Tarea 3.3** — [src/backend/server.ts](src/backend/server.ts) actualizado
+  - Importa y monta `whatsappRouter`
+  - Todo integrado y listo
 
 - ✅ **Documentación**
-  - [docs/supabase-init.sql](docs/supabase-init.sql) — SQL completo lista para copiar-pegar
-  - [docs/SUPABASE_SETUP.md](docs/SUPABASE_SETUP.md) — Instrucciones paso a paso
+  - [docs/WHATSAPP_SETUP.md](docs/WHATSAPP_SETUP.md) — Guía paso a paso para Meta Developer Dashboard
 
 ### 🔴 Bloqueador — Manual action required
 
-**Tarea 2.1** — Configuración manual de Supabase:
-1. Crea proyecto en [supabase.com](https://supabase.com)
-2. Copia SQL de [docs/supabase-init.sql](docs/supabase-init.sql) y ejecuta en SQL Editor
-3. Obtén credenciales (SUPABASE_URL, SUPABASE_ANON_KEY, SUPABASE_SERVICE_KEY)
-4. Actualiza `.env.local` con los valores
-5. Ejecuta `npm run dev` y verifica:
-   ```
-   ✅ Supabase connected (11 menu items)
-   🍔 Novo Burger server running on port 3001
-   ```
+**Tareas 3.4-3.5** — Configuración manual en Meta:
+1. Ve a [developers.facebook.com](https://developers.facebook.com)
+2. Crea app para WhatsApp
+3. Obtén `WHATSAPP_PHONE_NUMBER_ID` y `WHATSAPP_ACCESS_TOKEN`
+4. Instala **ngrok**: `ngrok http 3001`
+5. Configura webhook en Meta:
+   - URL: `https://TU-URL-NGROK/webhooks/whatsapp`
+   - Token: `novo_burger_webhook_2026`
+6. Suscríbete a campo "messages"
+7. Actualiza `.env.local` con credenciales
+8. Test: Envía mensaje por WhatsApp y verifica respuesta en servidor
 
 ---
 
