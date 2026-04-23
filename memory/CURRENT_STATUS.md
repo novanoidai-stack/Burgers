@@ -1,8 +1,8 @@
 # Estado Actual del Proyecto — Novo Burger
 
-**Última actualización**: 2026-04-23 13:25
+**Última actualización**: 2026-04-23 13:45
 
-**Fase actual**: Semana 1 — WhatsApp MVP (DÍA 2 ✅ COMPLETADO, DÍA 3 ~80% CÓDIGO LISTO)
+**Fase actual**: Semana 1 — WhatsApp MVP (DÍA 2 ✅ COMPLETADO, DÍA 3 CÓDIGO 100% LISTO → BLOQUEADO EN CONFIG META)
 
 ---
 
@@ -31,7 +31,7 @@
 - ✅ Servicio Supabase funcionando ✅ 11 menu items cargados
 - ✅ Test: `npm run dev` → "✅ Supabase connected (11 menu items)"
 
-## 🔨 En Progreso — Semana 1 / Día 3 (~80% código listo)
+## ✅ Código Completado — Semana 1 / Día 3 (100% CÓDIGO LISTO)
 
 ### ✅ Código completado — Día 3
 
@@ -53,23 +53,44 @@
 - ✅ **Documentación**
   - [docs/WHATSAPP_SETUP.md](docs/WHATSAPP_SETUP.md) — Guía paso a paso para Meta Developer Dashboard
 
-### 🔴 Bloqueador — Manual action required
+### 🔴 Bloqueador Actual — Meta Configuration (PENDIENTE)
 
-**Tareas 3.4-3.5** — Configuración manual en Meta:
-1. Ve a [developers.facebook.com](https://developers.facebook.com)
-2. Crea app para WhatsApp
-3. Obtén `WHATSAPP_PHONE_NUMBER_ID` y `WHATSAPP_ACCESS_TOKEN`
-4. Instala **ngrok**: `ngrok http 3001`
-5. Configura webhook en Meta:
-   - URL: `https://TU-URL-NGROK/webhooks/whatsapp`
-   - Token: `novo_burger_webhook_2026`
-6. Suscríbete a campo "messages"
-7. Actualiza `.env.local` con credenciales
-8. Test: Envía mensaje por WhatsApp y verifica respuesta en servidor
+**Estado**: Usuario intentando agregar producto WhatsApp en Meta, pero interfaz de Meta no muestra opciones claras.
+
+**Alternativas**:
+1. **Plan A** — Continuar esperando que Meta permita agregar WhatsApp (manual)
+   - Ve a [developers.facebook.com](https://developers.facebook.com)
+   - Busca opción de agregar WhatsApp a la app "Novo-Burger"
+   
+2. **Plan B** — Continuar desarrollo con valores mock (RECOMENDADO)
+   - Usar valores temporales en `.env.local` para testing local
+   - Crear script de test que simule mensajes WhatsApp
+   - Cuando Meta permita, actualizar con valores reales
+   - Ventaja: No esperar, continuar con Día 4 (Claude API)
+
+**Si logra agregar WhatsApp en Meta**:
+- Obtén: `WHATSAPP_PHONE_NUMBER_ID`, `WHATSAPP_ACCESS_TOKEN`
+- Instala ngrok: `ngrok http 3001`
+- Configura webhook: URL + Token en Meta
+- Suscríbete a "messages"
+- Actualiza `.env.local`
 
 ---
 
-## 🎯 Próximo (cuando Supabase esté configurado)
+## 🎯 Próximo Paso
+
+### Opción 1: Saltarse Día 3 (Meta) y hacer Día 4 (Claude) ahora
+- Crear servicio Claude: `src/backend/services/claude.ts`
+- Integrar con webhook WhatsApp (usa valores mock)
+- Tests de flujo end-to-end
+
+### Opción 2: Esperar a que Meta funcione
+- Continuar esperando configuración manual de Meta
+- Una vez hecha, hacer Día 3 completo
+
+---
+
+## 📅 Próximo (cuando se resuelva Día 3)
 
 ### Día 3 — Webhook WhatsApp
 - **Tarea 3.1** — Servicio WhatsApp (src/backend/services/whatsapp.ts)
