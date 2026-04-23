@@ -4,6 +4,7 @@ import { config } from './config';
 import { logger } from './middleware/logger';
 import { attachErrorHandler } from './middleware/errorHandler';
 import { healthRouter } from './routes/health';
+import { whatsappRouter } from './routes/whatsapp';
 import { testConnection as testSupabaseConnection } from './services/supabase';
 
 export function createApp(): Express {
@@ -21,11 +22,7 @@ export function createApp(): Express {
 
   // Routes
   app.use(healthRouter);
-
-  // Webhooks (to be implemented)
-  app.post('/webhooks/whatsapp', (req, res) => {
-    res.json({ success: true });
-  });
+  app.use(whatsappRouter);
 
   // API routes (to be implemented)
   app.get('/api/orders', (req, res) => {
