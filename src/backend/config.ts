@@ -9,7 +9,8 @@ export interface Config {
   logLevel: string;
   supabaseUrl?: string;
   supabaseAnonKey?: string;
-  anthropicApiKey?: string;
+  openrouterApiKey?: string;
+  openrouterModel?: string;
   whatsappPhoneNumberId?: string;
   whatsappAccessToken?: string;
   whatsappWebhookToken?: string;
@@ -37,7 +38,8 @@ export const config: Config = {
   logLevel: getEnv('LOG_LEVEL', 'info'),
   supabaseUrl: process.env.SUPABASE_URL,
   supabaseAnonKey: process.env.SUPABASE_ANON_KEY,
-  anthropicApiKey: process.env.ANTHROPIC_API_KEY,
+  openrouterApiKey: process.env.OPENROUTER_API_KEY,
+  openrouterModel: process.env.OPENROUTER_MODEL || 'deepseek/deepseek-chat',
   whatsappPhoneNumberId: process.env.WHATSAPP_PHONE_NUMBER_ID,
   whatsappAccessToken: process.env.WHATSAPP_ACCESS_TOKEN,
   whatsappWebhookToken: process.env.WHATSAPP_WEBHOOK_TOKEN,
