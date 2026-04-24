@@ -1,8 +1,8 @@
 # Estado Actual del Proyecto — Novo Burger
 
-**Última actualización**: 2026-04-23 13:45
+**Última actualización**: 2026-04-24 12:28
 
-**Fase actual**: Semana 1 — WhatsApp MVP (DÍA 2 ✅ COMPLETADO, DÍA 3 CÓDIGO 100% LISTO → BLOQUEADO EN CONFIG META)
+**Fase actual**: Semana 1 — WhatsApp MVP (DÍA 1-4 ✅✅✅✅ COMPLETADOS - MVP FUNCIONAL)
 
 ---
 
@@ -31,7 +31,20 @@
 - ✅ Servicio Supabase funcionando ✅ 11 menu items cargados
 - ✅ Test: `npm run dev` → "✅ Supabase connected (11 menu items)"
 
-## ✅ Código Completado — Semana 1 / Día 3 (100% CÓDIGO LISTO)
+## ✅ Completado — Semana 1 / Día 3 (100% CÓDIGO LISTO)
+
+(Código completado, solo necesita config manual de Meta — saltamos para hacer Día 4)
+
+## ✅ COMPLETADO — Semana 1 / Día 4 (MVP FUNCIONAL) 🚀
+
+**OpenRouter + DeepSeek V3 Integration:**
+- ✅ `src/backend/services/llm.ts` — Servicio OpenRouter/DeepSeek V3
+- ✅ Integración en webhook WhatsApp
+- ✅ Flujo completo: WhatsApp → LLM → Supabase → Respuesta
+- ✅ System prompt para procesar pedidos inteligentemente
+- ✅ Historial de conversación guardado en Supabase
+
+### Código Completado — Día 3 (para cuando Meta funcione)
 
 ### ✅ Código completado — Día 3
 
