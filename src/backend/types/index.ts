@@ -23,11 +23,36 @@ export interface WhatsAppWebhookEntry {
   }>;
 }
 
+// Pending order details
+export interface PendingOrderDetails {
+  customer_name?: string;
+  customer_phone?: string;
+  order_type?: 'takeaway' | 'dine_in';
+  pickup_time?: string;
+}
+
 // Claude API response
 export interface ClaudeResponse {
-  action: string;
-  order?: Order | null;
+  action:
+    | 'create_order'
+    | 'show_menu'
+    | 'confirm_order'
+    | 'clarify'
+    | 'answer_question'
+    | 'ask_details'
+    | 'upsell'
+    | 'order_sent';
+  order?: {
+    items: Array<{ name: string; quantity: number; price: number }>;
+    total: number;
+  } | null;
   response_message: string;
+  pending_details?: PendingOrderDetails;
+  missing_details?: string[];
+  pending_order?: {
+    items: Array<{ name: string; quantity: number; price: number }>;
+    subtotal: number;
+  } | null;
 }
 
 // Order status enum
@@ -35,11 +60,15 @@ export type OrderStatus = 'pending' | 'confirmed' | 'paid' | 'preparing' | 'read
 
 // Order item
 export interface OrderItem {
-  product_id: string;
+  product_id?: string;
+  id?: string;
   name: string;
-  quantity: number;
-  modifications: string[];
-  subtotal: number;
+  quantity?: number;
+  price?: number;
+  modifications?: string[];
+  subtotal?: number;
+  description?: string;
+  category?: string;
 }
 
 // Order
@@ -51,6 +80,11 @@ export interface Order {
   total: number;
   channel: 'whatsapp' | 'voice';
   created_at: string;
+  customer_name?: string;
+  customer_phone?: string;
+  order_type?: 'takeaway' | 'dine_in';
+  pickup_time?: string;
+  notes?: string;
 }
 
 // User

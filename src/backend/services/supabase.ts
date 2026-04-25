@@ -1,7 +1,8 @@
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
 import { config } from '../config';
 import { logger } from '../middleware/logger';
-import { User, Order, OrderStatus, OrderItem, ConversationMessage } from '../types';
+import { User, Order, OrderStatus, OrderItem, ConversationMessage, PendingOrderDetails } from '../types';
+import { cache } from './cache';
 
 let supabase: SupabaseClient;
 
@@ -71,6 +72,11 @@ export async function getMenuItems(): Promise<OrderItem[]> {
   try {
     if (!supabase) initSupabase();
 
+    const cachedMenu = cache.getMenu();
+    if (cachedMenu) {
+      return cachedMenu;
+    }
+
     const { data, error } = await supabase
       .from('menu_items')
       .select('id, name, price, category, description')
@@ -79,7 +85,10 @@ export async function getMenuItems(): Promise<OrderItem[]> {
     if (error) {
       throw error;
     }
-    return data as OrderItem[];
+
+    const items = (data || []) as OrderItem[];
+    cache.setMenu(items);
+    return items;
   } catch (error) {
     logger.error('Failed to get menu items', {
       error: error instanceof Error ? error.message : String(error),
@@ -236,6 +245,98 @@ export async function getConversation(userId: string): Promise<ConversationMessa
       error: error instanceof Error ? error.message : String(error),
     });
     return [];
+  }
+}
+
+export async function getRestaurantInfo(): Promise<Record<string, string>> {
+  try {
+    if (!supabase) initSupabase();
+
+    const cachedInfo = cache.getRestaurantInfo();
+    if (cachedInfo) {
+      return cachedInfo;
+    }
+
+    const { data, error } = await supabase.from('restaurant_info').select('key, value');
+
+    if (error) {
+      throw error;
+    }
+
+    const info: Record<string, string> = {};
+    (data || []).forEach((row: any) => {
+      info[row.key] = row.value;
+    });
+
+    cache.setRestaurantInfo(info);
+    return info;
+  } catch (error) {
+    logger.error('Failed to get restaurant info', {
+      error: error instanceof Error ? error.message : String(error),
+    });
+    throw error;
+  }
+}
+
+export async function updateOrderDetails(
+  orderId: string,
+  details: PendingOrderDetails,
+): Promise<Order> {
+  try {
+    if (!supabase) initSupabase();
+
+    const updateData: Record<string, any> = {};
+    if (details.customer_name) updateData.customer_name = details.customer_name;
+    if (details.customer_phone) updateData.customer_phone = details.customer_phone;
+    if (details.order_type) updateData.order_type = details.order_type;
+    if (details.pickup_time) updateData.pickup_time = details.pickup_time;
+
+    const { data, error } = await supabase
+      .from('orders')
+      .update(updateData)
+      .eq('id', orderId)
+      .select()
+      .single();
+
+    if (error) {
+      throw error;
+    }
+    return data as Order;
+  } catch (error) {
+    logger.error('Failed to update order details', {
+      orderId,
+      error: error instanceof Error ? error.message : String(error),
+    });
+    throw error;
+  }
+}
+
+export async function getPendingOrderForUser(userId: string): Promise<Order | null> {
+  try {
+    if (!supabase) initSupabase();
+
+    const { data, error } = await supabase
+      .from('orders')
+      .select('*')
+      .eq('user_id', userId)
+      .in('status', ['pending', 'confirmed'])
+      .order('created_at', { ascending: false })
+      .limit(1)
+      .single();
+
+    if (error) {
+      if (error.code === 'PGRST116') {
+        return null;
+      }
+      throw error;
+    }
+    return data as Order;
+  } catch (error) {
+    logger.error('Failed to get pending order', {
+      userId,
+      error: error instanceof Error ? error.message : String(error),
+    });
+    return null;
   }
 }
 
