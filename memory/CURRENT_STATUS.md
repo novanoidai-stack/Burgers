@@ -1,71 +1,73 @@
 # Estado Actual del Proyecto — Novo Burger MVP
 
-**Última actualización**: 2026-04-27 (Sesión 3)
+**Última actualización**: 2026-04-28 (Sesión 4)
 
-**Fase actual**: PASO 2 de 4 — Configuración Manual
+**Fase actual**: PASO 4 de 4 — Test End-to-End (BLOQUEADO por token Meta)
 
-**Status**: MVP 100% código listo. Setup manual en progreso.
+**Status**: MVP 100% código listo. Backend corriendo. **BLOQUEADO: Token de WhatsApp inválido**
 
 ---
 
-## ✅ COMPLETADO HOY (Sesión 3)
+## ✅ COMPLETADO (Sesiones 3-4)
 
 ### PASO 1: Supabase ✅ 100% FUNCIONAL
 - ✅ SQL ejecutado correctamente en Supabase
-- ✅ Tabla `menu_items`: **22 items** (verificado con SELECT COUNT)
-- ✅ Tabla `restaurant_info`: **10 registros** (verificado con SELECT COUNT)
-- ✅ Todas las categorías: hamburguesas, bebidas, postres, extras, salsas, entrantes, complementos
-- ✅ Base de datos LISTA para recibir órdenes
+- ✅ Tabla `menu_items`: **22 items** (verificado)
+- ✅ Tabla `restaurant_info`: **10 registros** (verificado)
+- ✅ Base de datos LISTA
 
-### MVP Backend Code ✅ 100% FUNCIONAL
-- ✅ Express server en puerto 3001
-- ✅ Servicios completos:
-  - `services/llm.ts` — OpenRouter/Deepseek V3 (costo mínimo ✅)
-  - `services/whatsapp.ts` — Integración Meta WhatsApp
-  - `services/supabase.ts` — CRUD completo
-  - `services/cache.ts` — Caché en memoria
-- ✅ Middleware: logger (Winston), errorHandler, rateLimiter (20 msgs/min)
-- ✅ Routes: health.ts, whatsapp.ts (GET verify + POST webhook)
-- ✅ TypeScript strict mode — Sin errores de compilación
-- ✅ `npm run dev` funciona perfecto: "🍔 Novo Burger server running on port 3001"
-- ✅ GitHub sincronizado (main branch)
+### PASO 2: Meta WhatsApp ✅ PARCIALMENTE COMPLETO
+- ✅ App "Novo Burger" creada en Meta Developer
+- ✅ WhatsApp product agregado
+- ✅ Webhook URL configurado: `https://furnished-detail-everybody-loan.trycloudflare.com/webhooks/whatsapp`
+- ✅ Webhook verificado correctamente ✅ en Meta
+- ✅ Suscrito a campo "messages" ✅
+- ❌ **Token de WhatsApp INVÁLIDO** — No es válido para enviar mensajes
+
+**Credenciales obtenidas:**
+```
+WHATSAPP_PHONE_NUMBER_ID=1097727516755481 ✅
+WHATSAPP_BUSINESS_ACCOUNT_ID=1647252563277059 ✅
+WHATSAPP_ACCESS_TOKEN=??? INVÁLIDO ❌
+```
+
+### PASO 3: Cloudflare Tunnel ✅ ACTIVO
+- ✅ Cloudflare tunnel corriendo en tiempo real
+- ✅ URL pública: `https://furnished-detail-everybody-loan.trycloudflare.com`
+- ✅ Conectado a localhost:3001
+- ✅ Meta puede alcanzar el webhook
+
+### Backend Express ✅ CORRIENDO
+- ✅ `npm run dev` en puerto 3001
+- ✅ Supabase conectado (22 items)
+- ✅ Recibe webhooks POST de Meta correctamente
+- ✅ Procesa mensajes (logs muestran: "POST /webhooks/whatsapp", "Mensaje recibido")
 
 ---
 
 ## 🔨 EN PROGRESO (BLOQUEADO)
 
-### PASO 2: Meta WhatsApp Setup ⚠️ BLOQUEADO TEMPORALMENTE
-- ❌ App de Meta **eliminada accidentalmente** (contactando empresa de amigos)
-  - Sucedió hace ~1 minuto en sesión
-  - Estaba en cuenta de Meta de la **empresa**
-  - Período de recuperación: **30 días**
-  - Meta Support: **24-48 horas de respuesta**
-  
-**Acción tomada**: Contactando Meta Support para recuperar app
+### PASO 4: Test End-to-End ⚠️ BLOQUEADO
+**Bloqueador**: Token de WhatsApp **INVÁLIDO**
 
-**Qué falta una vez recuperada (o nueva app)**:
-1. Obtener `WHATSAPP_PHONE_NUMBER_ID` de Meta
-2. Obtener `WHATSAPP_ACCESS_TOKEN` de Meta
-3. Actualizar `.env.local` con ambos
-4. Continuar a Paso 3 (ngrok)
+Evidencia en logs:
+```
+OpenRouter API error: "User not found" (401)
+Failed to send WhatsApp message: "Invalid OAuth access token - Cannot parse access token"
+```
 
----
+**El problema**: 
+- Webhook se verifica ✅ en Meta
+- Mensajes llegan al servidor ✅
+- Pero **el token para ENVIAR mensajes es INVÁLIDO** ❌
 
-## 🔲 PENDIENTE (Próxima sesión)
+**Soluciones intentadas (sin éxito)**:
+1. Token temporal de Meta — No funciona (expira/inválido)
+2. Múltiples intentos de copiar/pegar — Mismo error
 
-### PASO 3: ngrok Setup
-1. Descargar ngrok desde https://ngrok.com/download
-2. Ejecutar: `ngrok http 3001`
-3. Obtener URL pública
-4. Configurar webhook en Meta: `https://xxx.ngrok-free.app/webhooks/whatsapp`
-5. Suscribirse a campo "messages" en Meta
-
-### PASO 4: Test End-to-End
-1. `npm run dev` (terminal 1)
-2. `ngrok http 3001` (terminal 2)
-3. Enviar mensajes desde WhatsApp (terminal 3)
-4. Verificar respuestas del bot
-5. Verificar órdenes en Supabase
+**Solución necesaria**:
+- Obtener **TOKEN PERMANENTE** en Meta (no temporal)
+- Pasos: Meta → Settings → System Users → Crear token permanente
 
 ---
 
@@ -73,60 +75,79 @@
 
 | Paso | Tarea | Status | Notas |
 |------|-------|--------|-------|
-| 1 | Supabase (BD + datos) | ✅ 100% | Listo, verificado |
-| 2 | Meta WhatsApp (credentials) | ⚠️ BLOQUEADO | Esperando Meta Support (24-48h) |
-| 3 | ngrok (tunnel local) | 🔲 0% | Próxima sesión |
-| 4 | Test punta-a-punta | 🔲 0% | Próxima sesión |
-| **TOTAL** | | **25%** | |
+| 1 | Supabase (BD + datos) | ✅ 100% | Completo |
+| 2 | Meta WhatsApp (webhook) | ✅ 95% | Webhook OK, token inválido |
+| 3 | Cloudflare Tunnel | ✅ 100% | Activo y funcionando |
+| 4 | Test end-to-end | ❌ BLOQUEADO | Esperando token válido de Meta |
+| **TOTAL** | | **75%** | |
 
 ---
 
-## 🔐 Credenciales — Estado Actual
+## 🔐 Credenciales Actuales
 
-### ✅ CONFIGURADO
+### ✅ CONFIGURADO EN `.env.local`
 ```env
 # Supabase
 SUPABASE_URL=https://lgujnotyqkqlwukgzkww.supabase.co
 SUPABASE_ANON_KEY=sb_publishable_PB-1NAYR1dUuAcMHoe92QA_pRf-sjGb
 
-# OpenRouter (Deepseek — costo bajo ✅)
+# OpenRouter (Deepseek)
 OPENROUTER_API_KEY=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
 OPENROUTER_MODEL=deepseek/deepseek-chat
 
-# WhatsApp Webhook
+# WhatsApp
+WHATSAPP_BUSINESS_ACCOUNT_ID=1647252563277059
+WHATSAPP_PHONE_NUMBER_ID=1097727516755481
 WHATSAPP_WEBHOOK_TOKEN=novo_burger_webhook_2026
+WHATSAPP_ACCESS_TOKEN=[INVÁLIDO - NECESITA REEMPLAZO]
 ```
 
-### 🔲 PENDIENTE (Meta Support)
+---
+
+## 🔗 URLs y Números Importantes
+
+- **Cloudflare Tunnel**: `https://furnished-detail-everybody-loan.trycloudflare.com`
+- **Webhook URL en Meta**: `https://furnished-detail-everybody-loan.trycloudflare.com/webhooks/whatsapp`
+- **Número de prueba WhatsApp**: +34 641 62 54 50
+- **Server local**: `http://localhost:3001`
+
+---
+
+## 📝 Próxima Sesión — QUÉ HACER
+
+### Paso 1: Obtener Token Permanente de Meta
+1. Ve a **Meta Developer** → Tu app "Novo Burger"
+2. Click en **Settings** → **Basic**
+3. Busca **"System Users"** o **"App Roles"**
+4. Crea un **nuevo System User** con permisos para WhatsApp
+5. Genera un **token PERMANENTE** (no temporal)
+6. Copia el token completo
+
+### Paso 2: Actualizar `.env.local`
 ```env
-WHATSAPP_PHONE_NUMBER_ID=??? (esperando)
-WHATSAPP_ACCESS_TOKEN=??? (esperando)
+WHATSAPP_ACCESS_TOKEN=[token permanente aqui]
 ```
+
+### Paso 3: Reiniciar servidor
+```powershell
+npm run dev
+```
+
+### Paso 4: Test
+- Envía mensaje a **+34 641 62 54 50**
+- Deberías recibir respuesta
 
 ---
 
-## 📝 Información Importante
+## 🎯 Resumen para Mañana
 
-- **MVP Code**: 100% funcional, optimizado para **costo mínimo** (Deepseek ~€0.014/1M tokens)
-- **DB**: Supabase lista con 22 items menú + 10 datos restaurant
-- **Retraso**: Eliminación accidental de app Meta (no es crítico, recuperable o nueva en 5 min)
-- **GitHub**: Todo sincronizado en main branch
-- **Próxima acción**: Verificar respuesta Meta Support (24-48h) O crear nueva app (5 min)
+**Pregunta**: "¿Dónde lo dejamos?"
 
----
+**Respuesta automática**:
+1. **Estado**: PASO 4 bloqueado — Token de Meta inválido
+2. **Acción**: Obtener token PERMANENTE de Meta (no temporal)
+3. **Cómo**: Settings → System Users → Token permanente
+4. **Luego**: Actualizar `.env.local` y reiniciar npm
+5. **Testing**: Enviar mensaje a +34 641 62 54 50
 
-## 🎯 Instrucciones para Próxima Sesión
-
-Cuando vuelvas, simplemente pregunta:
-```
-¿Dónde lo dejamos?
-```
-
-Te responderé:
-1. **Estado actual**: PASO 2 bloqueado, esperando Meta
-2. **Qué hacer**: 
-   - Si Meta respondió: continuar con credentials
-   - Si no: crear nueva app (5 minutos)
-3. **Próximos pasos**: Paso 3 (ngrok) y Paso 4 (test)
-
-**TODO está guardado, sincronizado y documentado. Listo para continuar.** ✅
+**TODO está guardado y documentado.** ✅
