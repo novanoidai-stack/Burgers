@@ -1,0 +1,14 @@
+{
+  "permissions": {
+    "allow": [
+      "PowerShell(Get-Command npm -ErrorAction SilentlyContinue)",
+      "PowerShell(& \"C:\\\\Program Files\\\\nodejs\\\\node.exe\" --version)",
+      "PowerShell($env:Path = \"C:\\\\Program Files\\\\nodejs;\" + $env:Path ; cd \"c:\\\\Users\\\\samul\\\\OneDrive\\\\Escritorio\\\\NovanoidAI\\\\Burgers\" ; npm run dev 2>&1 | Select-Object -First 50)",
+      "PowerShell($env:Path = \"C:\\\\Program Files\\\\nodejs;\" + $env:Path ; cd \"c:\\\\Users\\\\samul\\\\OneDrive\\\\Escritorio\\\\NovanoidAI\\\\Burgers\" ; & \"C:\\\\Program Files\\\\nodejs\\\\npm.cmd\" run dev 2>&1 | Select-Object -First 50)",
+      "PowerShell(Invoke-WebRequest -Uri \"http://localhost:3001/health\" -UseBasicParsing)",
+      "Bash(git add *)",
+      "Bash(git commit *)",
+      "PowerShell($env:Path = \"C:\\\\Program Files\\\\nodejs;\" + $env:Path ; cd \"c:\\\\Users\\\\samul\\\\OneDrive\\\\Escritorio\\\\NovanoidAI\\\\Burgers\" ; & \"C:\\\\Program Files\\\\nodejs\\\\npm.cmd\" run dev 2>&1 | Select-Object -First 30)"
+    ]
+  }
+}
