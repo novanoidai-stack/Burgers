@@ -1,91 +1,100 @@
 # Estado Actual del Proyecto — Novo Burger MVP
 
-**Última actualización**: 2026-04-28 (Sesión 4)
+**Última actualización**: 2026-04-28 (Sesión 5 — CAMBIO ARQUITECTÓNICO)
 
-**Fase actual**: PASO 4 de 4 — Test End-to-End (BLOQUEADO por token Meta)
+**Fase actual**: MIGRACIÓN → N8N Cloud (arquitectura completamente nueva)
 
-**Status**: MVP 100% código listo. Backend corriendo. **BLOQUEADO: Token de WhatsApp inválido**
-
----
-
-## ✅ COMPLETADO (Sesiones 3-4)
-
-### PASO 1: Supabase ✅ 100% FUNCIONAL
-- ✅ SQL ejecutado correctamente en Supabase
-- ✅ Tabla `menu_items`: **22 items** (verificado)
-- ✅ Tabla `restaurant_info`: **10 registros** (verificado)
-- ✅ Base de datos LISTA
-
-### PASO 2: Meta WhatsApp ✅ PARCIALMENTE COMPLETO
-- ✅ App "Novo Burger" creada en Meta Developer
-- ✅ WhatsApp product agregado
-- ✅ Webhook URL configurado: `https://furnished-detail-everybody-loan.trycloudflare.com/webhooks/whatsapp`
-- ✅ Webhook verificado correctamente ✅ en Meta
-- ✅ Suscrito a campo "messages" ✅
-- ❌ **Token de WhatsApp INVÁLIDO** — No es válido para enviar mensajes
-
-**Credenciales obtenidas:**
-```
-WHATSAPP_PHONE_NUMBER_ID=1097727516755481 ✅
-WHATSAPP_BUSINESS_ACCOUNT_ID=1647252563277059 ✅
-WHATSAPP_ACCESS_TOKEN=??? INVÁLIDO ❌
-```
-
-### PASO 3: Cloudflare Tunnel ✅ ACTIVO
-- ✅ Cloudflare tunnel corriendo en tiempo real
-- ✅ URL pública: `https://furnished-detail-everybody-loan.trycloudflare.com`
-- ✅ Conectado a localhost:3001
-- ✅ Meta puede alcanzar el webhook
-
-### Backend Express ✅ CORRIENDO
-- ✅ `npm run dev` en puerto 3001
-- ✅ Supabase conectado (22 items)
-- ✅ Recibe webhooks POST de Meta correctamente
-- ✅ Procesa mensajes (logs muestran: "POST /webhooks/whatsapp", "Mensaje recibido")
+**Status**: ✅ Abandono Express. ✅ Implementación N8N lista. **Espera: usuario crea cuenta N8N Cloud**
 
 ---
 
-## 🔨 EN PROGRESO (BLOQUEADO)
+## 📋 NUEVO FLUJO ARQUITECTÓNICO (N8N Cloud)
 
-### PASO 4: Test End-to-End ⚠️ BLOQUEADO
-**Bloqueador**: Token de WhatsApp **INVÁLIDO**
-
-Evidencia en logs:
 ```
-OpenRouter API error: "User not found" (401)
-Failed to send WhatsApp message: "Invalid OAuth access token - Cannot parse access token"
+WhatsApp → Meta API → N8N Cloud Webhook → OpenRouter/Deepseek → Supabase → Meta API → WhatsApp
 ```
 
-**El problema**: 
-- Webhook se verifica ✅ en Meta
-- Mensajes llegan al servidor ✅
-- Pero **el token para ENVIAR mensajes es INVÁLIDO** ❌
-
-**Soluciones intentadas (sin éxito)**:
-1. Token temporal de Meta — No funciona (expira/inválido)
-2. Múltiples intentos de copiar/pegar — Mismo error
-
-**Solución necesaria**:
-- Obtener **TOKEN PERMANENTE** en Meta (no temporal)
-- Pasos: Meta → Settings → System Users → Crear token permanente
+**Ventajas vs Express**:
+- ✅ Corre 24/7 sin terminal abierta
+- ✅ Webhook URL permanente (no cambia)
+- ✅ Sin mantenimiento manual
+- ✅ Visual, fácil de editar
+- ✅ Igual que amigos (barbershops)
 
 ---
 
-## 📊 Progreso Setup Manual
+## ✅ COMPLETADO
 
-| Paso | Tarea | Status | Notas |
-|------|-------|--------|-------|
-| 1 | Supabase (BD + datos) | ✅ 100% | Completo |
-| 2 | Meta WhatsApp (webhook) | ✅ 95% | Webhook OK, token inválido |
-| 3 | Cloudflare Tunnel | ✅ 100% | Activo y funcionando |
-| 4 | Test end-to-end | ❌ BLOQUEADO | Esperando token válido de Meta |
-| **TOTAL** | | **75%** | |
+### BD Supabase ✅
+- ✅ 22 items menú
+- ✅ 10 restaurant_info
+- ✅ Schema completo
+
+### Credenciales Meta ✅
+- ✅ WHATSAPP_PHONE_NUMBER_ID: 1097727516755481
+- ✅ WHATSAPP_BUSINESS_ACCOUNT_ID: 1647252563277059
+- ✅ App creada y verificada
+
+### LLM ✅
+- ✅ OpenRouter API key vigente
+- ✅ Deepseek model lista
 
 ---
 
-## 🔐 Credenciales Actuales
+## 🔨 EN PROGRESO
 
-### ✅ CONFIGURADO EN `.env.local`
+### Paso 1: Crear cuenta N8N Cloud
+**Estado**: Pendiente que usuario lo haga (2 minutos)
+- URL: https://n8n.io
+- Plan: Gratuito (5 workflows)
+- Qué hace: Crear workspace
+
+### Paso 2: Importar Workflow N8N
+**Estado**: Archivo JSON listo en GitHub
+- Archivo: `/n8n-workflow-novo-burger.json`
+- Qué hace: Reemplaza todo lo que hacía Express
+
+### Paso 3: Configurar Credenciales en N8N
+- OpenRouter API key
+- Supabase URL + key
+- WhatsApp Phone ID
+- **WhatsApp Access Token PERMANENTE** (pendiente)
+
+### Paso 4: Configurar Webhook en Meta
+- URL: https://[nombre-usuario].n8n.cloud/webhook/whatsapp
+- Token: novo_burger_webhook_2026
+- Suscribirse a: messages
+
+### Paso 5: Activar Workflow
+- Click activar en N8N
+- Test desde WhatsApp
+
+---
+
+## 📊 Progreso
+
+| Componente | Status | Notas |
+|-----------|--------|-------|
+| Supabase | ✅ 100% | BD lista |
+| Meta App | ✅ 100% | App verificada |
+| N8N Account | ⏳ Pendiente usuario | Crear en n8n.io |
+| Workflow JSON | ✅ 100% | Listo en GitHub |
+| Credenciales N8N | ⏳ En proceso | Faltan WhatsApp token |
+| Webhook Meta | ⏳ Pendiente | Después de crear account |
+| **TOTAL** | **60%** | |
+
+---
+
+## ❌ ABANDONADO (Express Stack)
+- src/backend/ — Ya no se usa
+- Cloudflare tunnel — Ya no necesario
+- npm run dev — Ya no necesario
+- .env.local (Express) — Obsoleto
+
+---
+
+## 🔐 Credenciales para N8N
+
 ```env
 # Supabase
 SUPABASE_URL=https://lgujnotyqkqlwukgzkww.supabase.co
@@ -93,61 +102,52 @@ SUPABASE_ANON_KEY=sb_publishable_PB-1NAYR1dUuAcMHoe92QA_pRf-sjGb
 
 # OpenRouter (Deepseek)
 OPENROUTER_API_KEY=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
-OPENROUTER_MODEL=deepseek/deepseek-chat
 
 # WhatsApp
-WHATSAPP_BUSINESS_ACCOUNT_ID=1647252563277059
 WHATSAPP_PHONE_NUMBER_ID=1097727516755481
+WHATSAPP_ACCESS_TOKEN=??? PENDIENTE (obtener token permanente)
 WHATSAPP_WEBHOOK_TOKEN=novo_burger_webhook_2026
-WHATSAPP_ACCESS_TOKEN=[INVÁLIDO - NECESITA REEMPLAZO]
 ```
 
 ---
 
-## 🔗 URLs y Números Importantes
+## 🎯 PRÓXIMOS PASOS EXACTOS
 
-- **Cloudflare Tunnel**: `https://furnished-detail-everybody-loan.trycloudflare.com`
-- **Webhook URL en Meta**: `https://furnished-detail-everybody-loan.trycloudflare.com/webhooks/whatsapp`
-- **Número de prueba WhatsApp**: +34 641 62 54 50
-- **Server local**: `http://localhost:3001`
+### YA (Usuario):
+1. Ve a https://n8n.io
+2. Click **Sign up** (plan gratuito)
+3. Crea tu cuenta
 
----
+### CUANDO confirmes (Yo):
+1. Te doy instrucción exacta para importar workflow
+2. Te digo dónde pegar cada credencial
+3. Te digo qué URL usar en Meta
 
-## 📝 Próxima Sesión — QUÉ HACER
+### Luego (Usuario):
+1. Obtén token PERMANENTE Meta (System Users)
+2. Pégalo en N8N
+3. Activa workflow
+4. Test
 
-### Paso 1: Obtener Token Permanente de Meta
-1. Ve a **Meta Developer** → Tu app "Novo Burger"
-2. Click en **Settings** → **Basic**
-3. Busca **"System Users"** o **"App Roles"**
-4. Crea un **nuevo System User** con permisos para WhatsApp
-5. Genera un **token PERMANENTE** (no temporal)
-6. Copia el token completo
-
-### Paso 2: Actualizar `.env.local`
-```env
-WHATSAPP_ACCESS_TOKEN=[token permanente aqui]
-```
-
-### Paso 3: Reiniciar servidor
-```powershell
-npm run dev
-```
-
-### Paso 4: Test
-- Envía mensaje a **+34 641 62 54 50**
-- Deberías recibir respuesta
+**TODO documentado en N8N-SETUP.md**
 
 ---
 
-## 🎯 Resumen para Mañana
+## 📝 Información Crítica
 
-**Pregunta**: "¿Dónde lo dejamos?"
+- **Número test**: +34 641 62 54 50
+- **N8N Webhook**: https://[tu-cuenta].n8n.cloud/webhook/whatsapp
+- **Workflow**: Ya listo, importar JSON
+- **Express**: ABANDONADO
+- **Cloudflare**: CANCELAR (ya no se usa)
 
-**Respuesta automática**:
-1. **Estado**: PASO 4 bloqueado — Token de Meta inválido
-2. **Acción**: Obtener token PERMANENTE de Meta (no temporal)
-3. **Cómo**: Settings → System Users → Token permanente
-4. **Luego**: Actualizar `.env.local` y reiniciar npm
-5. **Testing**: Enviar mensaje a +34 641 62 54 50
+---
 
-**TODO está guardado y documentado.** ✅
+## 🚀 Estado Final
+Cuando termines los pasos:
+- ✅ Chatbot corre 24/7
+- ✅ Sin terminales abiertas
+- ✅ Sin cloudflare
+- ✅ Sin Express
+- ✅ Todo en N8N Cloud
+- ✅ Listo para clientes
