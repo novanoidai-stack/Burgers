@@ -1,0 +1,373 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Order (Pedido)",
+  "description": "Esquema completo del pedido que circula entre voz/WhatsApp, LLM, TPV y pagos",
+  "type": "object",
+  "properties": {
+    "order": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Identificador único del pedido. Formato: ORD-YYYYMMDD-XXXXX",
+          "example": "ORD-20260331-00001"
+        },
+        "session_id": {
+          "type": "string",
+          "description": "UUID de la sesión (voz o WhatsApp) que originó este pedido",
+          "format": "uuid"
+        },
+        "channel": {
+          "type": "string",
+          "enum": ["voice", "whatsapp"],
+          "description": "Canal de origen del pedido"
+        },
+        "client": {
+          "type": "object",
+          "description": "Datos del cliente que hace el pedido",
+          "properties": {
+            "phone": {
+              "type": "string",
+              "description": "Número de teléfono del cliente (formato internacional)",
+              "example": "+34600123456"
+            },
+            "name": {
+              "type": "string",
+              "description": "Nombre del cliente",
+              "example": "Juan García"
+            },
+            "email": {
+              "type": ["string", "null"],
+              "description": "Email opcional del cliente"
+            }
+          },
+          "required": ["phone", "name"]
+        },
+        "delivery": {
+          "type": "object",
+          "description": "Configuración de entrega del pedido",
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": ["takeaway", "delivery", "table"],
+              "description": "Tipo de entrega: takeaway (recogida en local), delivery (a domicilio), table (en mesa de local)"
+            },
+            "address": {
+              "type": ["object", "null"],
+              "description": "Dirección de entrega (requerida si type=delivery, null en otros casos)",
+              "properties": {
+                "street": {
+                  "type": "string",
+                  "example": "Calle Gran Vía 10"
+                },
+                "city": {
+                  "type": "string",
+                  "example": "Madrid"
+                },
+                "postal_code": {
+                  "type": "string",
+                  "example": "28001"
+                },
+                "notes": {
+                  "type": ["string", "null"],
+                  "description": "Notas de acceso (portero, piso, etc.)"
+                }
+              },
+              "required": ["street", "city", "postal_code"]
+            },
+            "table_number": {
+              "type": ["integer", "null"],
+              "description": "Número de mesa (requerido si type=table, null en otros casos)",
+              "example": 5
+            },
+            "estimated_time_min": {
+              "type": ["integer", "null"],
+              "description": "Tiempo estimado de entrega en minutos (solo para delivery)",
+              "example": 30
+            }
+          },
+          "required": ["type"]
+        },
+        "items": {
+          "type": "array",
+          "description": "Lista de items del pedido",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "properties": {
+              "product_id": {
+                "type": "string",
+                "description": "ID único del producto en el catálogo",
+                "example": "BURGER-CLASSIC-001"
+              },
+              "name": {
+                "type": "string",
+                "description": "Nombre legible del producto",
+                "example": "Burger Clásica"
+              },
+              "quantity": {
+                "type": "integer",
+                "minimum": 1,
+                "description": "Cantidad de este producto",
+                "example": 2
+              },
+              "modifications": {
+                "type": "array",
+                "description": "Modificaciones realizadas al producto (sin cebolla, doble queso, etc.)",
+                "items": {
+                  "type": "string"
+                },
+                "example": ["sin_cebolla", "doble_queso"]
+              },
+              "unit_price": {
+                "type": "number",
+                "description": "Precio unitario del producto (sin modificadores)",
+                "example": 12.50
+              },
+              "subtotal": {
+                "type": "number",
+                "description": "Precio total de este línea (unit_price * quantity)",
+                "example": 25.00
+              }
+            },
+            "required": ["product_id", "name", "quantity", "unit_price", "subtotal"]
+          }
+        },
+        "summary": {
+          "type": "object",
+          "description": "Resumen de precios del pedido",
+          "properties": {
+            "subtotal": {
+              "type": "number",
+              "description": "Suma de todos los items sin impuestos ni envío",
+              "example": 25.00
+            },
+            "discount": {
+              "type": "number",
+              "description": "Descuento aplicado (0 si no hay)",
+              "example": 0.00
+            },
+            "tax_rate": {
+              "type": "number",
+              "description": "Tasa de impuestos (ej: 0.21 para 21% IVA)",
+              "example": 0.21
+            },
+            "tax": {
+              "type": "number",
+              "description": "Monto de impuestos calculado",
+              "example": 5.25
+            },
+            "delivery_fee": {
+              "type": "number",
+              "description": "Tarifa de entrega (0 si no aplica)",
+              "example": 2.50
+            },
+            "total": {
+              "type": "number",
+              "description": "Total final del pedido (subtotal + tax + delivery_fee - discount)",
+              "example": 32.75
+            }
+          },
+          "required": ["subtotal", "discount", "tax_rate", "tax", "delivery_fee", "total"]
+        },
+        "payment": {
+          "type": "object",
+          "description": "Información de pago del pedido",
+          "properties": {
+            "status": {
+              "type": "string",
+              "enum": ["pending", "paid", "failed"],
+              "description": "Estado del pago"
+            },
+            "method": {
+              "type": "string",
+              "enum": ["stripe", "mercado_pago", "cash"],
+              "description": "Método de pago"
+            },
+            "stripe_payment_intent_id": {
+              "type": ["string", "null"],
+              "description": "ID de Stripe PaymentIntent (si aplicable)"
+            },
+            "link": {
+              "type": ["string", "null"],
+              "description": "URL de pago generada (Stripe link, etc.)",
+              "format": "uri"
+            },
+            "paid_at": {
+              "type": ["string", "null"],
+              "description": "Timestamp ISO cuando se confirmó el pago",
+              "format": "date-time"
+            }
+          },
+          "required": ["status", "method"]
+        },
+        "state": {
+          "type": "string",
+          "enum": [
+            "pending",
+            "confirmed",
+            "paid",
+            "sent_to_tpv",
+            "in_preparation",
+            "ready",
+            "completed",
+            "cancelled"
+          ],
+          "description": "Estado del pedido en el ciclo de vida completo"
+        },
+        "notes": {
+          "type": ["string", "null"],
+          "description": "Notas adicionales de preparación (sin sal, servir rápido, etc.)",
+          "example": "Sin sal, servir mientras está caliente"
+        },
+        "created_at": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Timestamp ISO cuando se creó el pedido"
+        },
+        "updated_at": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Timestamp ISO de la última actualización"
+        },
+        "tpv_config": {
+          "type": "object",
+          "description": "Configuración de integración con TPV (POS)",
+          "properties": {
+            "target": {
+              "type": "string",
+              "enum": ["revo", "square", "toast", "kds_own", "none"],
+              "description": "TPV destino: revo/square/toast (APIs), kds_own (nuestro KDS), none (sin envío)"
+            },
+            "external_id": {
+              "type": ["string", "null"],
+              "description": "ID del pedido en el TPV externo después de enviarlo"
+            },
+            "sent_at": {
+              "type": ["string", "null"],
+              "format": "date-time",
+              "description": "Timestamp cuando se envió al TPV"
+            },
+            "confirmed_at": {
+              "type": ["string", "null"],
+              "format": "date-time",
+              "description": "Timestamp cuando el TPV confirmó recepción"
+            },
+            "error_count": {
+              "type": "integer",
+              "description": "Número de intentos fallidos de envío al TPV",
+              "default": 0
+            }
+          },
+          "required": ["target"]
+        },
+        "restaurant_config": {
+          "type": "object",
+          "description": "Configuración del restaurante que recibe este pedido (permite multi-local)",
+          "properties": {
+            "restaurant_id": {
+              "type": "string",
+              "description": "ID único del restaurante",
+              "example": "REST-001-madrid"
+            },
+            "allows_delivery": {
+              "type": "boolean",
+              "description": "Si este restaurante permite delivery"
+            },
+            "allows_tables": {
+              "type": "boolean",
+              "description": "Si este restaurante tiene mesas"
+            },
+            "delivery_zones": {
+              "type": "array",
+              "description": "Códigos postales o zonas donde se hace delivery",
+              "items": {
+                "type": "string"
+              },
+              "example": ["28001", "28002", "28003"]
+            }
+          },
+          "required": ["restaurant_id"]
+        }
+      },
+      "required": [
+        "id",
+        "session_id",
+        "channel",
+        "client",
+        "delivery",
+        "items",
+        "summary",
+        "payment",
+        "state",
+        "created_at",
+        "updated_at",
+        "tpv_config",
+        "restaurant_config"
+      ]
+    }
+  },
+  "required": ["order"],
+  "examples": [
+    {
+      "order": {
+        "id": "ORD-20260331-00001",
+        "session_id": "550e8400-e29b-41d4-a716-446655440000",
+        "channel": "voice",
+        "client": {
+          "phone": "+34600123456",
+          "name": "Juan García",
+          "email": null
+        },
+        "delivery": {
+          "type": "takeaway",
+          "address": null,
+          "table_number": null,
+          "estimated_time_min": null
+        },
+        "items": [
+          {
+            "product_id": "BURGER-CLASSIC-001",
+            "name": "Burger Clásica",
+            "quantity": 2,
+            "modifications": ["sin_cebolla"],
+            "unit_price": 12.50,
+            "subtotal": 25.00
+          }
+        ],
+        "summary": {
+          "subtotal": 25.00,
+          "discount": 0.00,
+          "tax_rate": 0.21,
+          "tax": 5.25,
+          "delivery_fee": 0.00,
+          "total": 30.25
+        },
+        "payment": {
+          "status": "pending",
+          "method": "stripe",
+          "stripe_payment_intent_id": null,
+          "link": "https://pay.stripe.com/...",
+          "paid_at": null
+        },
+        "state": "pending",
+        "notes": "Sin sal, mantener caliente",
+        "created_at": "2026-03-31T10:00:00Z",
+        "updated_at": "2026-03-31T10:00:00Z",
+        "tpv_config": {
+          "target": "revo",
+          "external_id": null,
+          "sent_at": null,
+          "confirmed_at": null,
+          "error_count": 0
+        },
+        "restaurant_config": {
+          "restaurant_id": "REST-001-madrid",
+          "allows_delivery": true,
+          "allows_tables": true,
+          "delivery_zones": ["28001", "28002"]
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,206 @@
+{
+  "name": "Novo Burger WhatsApp Chatbot",
+  "nodes": [
+    {
+      "parameters": {
+        "path": "whatsapp",
+        "httpMethod": "POST",
+        "responseMode": "onReceived",
+        "responseData": "anotherField",
+        "responseDataField": "challenge"
+      },
+      "id": "1",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [250, 300]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "boolean": [
+            {
+              "value1": "={{ $json.query?.['hub.mode'] }}",
+              "operation": "equals",
+              "value2": "subscribe"
+            }
+          ]
+        }
+      },
+      "id": "2",
+      "name": "IF Verification",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [500, 300]
+    },
+    {
+      "parameters": {
+        "responseBody": "={{ $json.query?.['hub.challenge'] }}"
+      },
+      "id": "3",
+      "name": "Return Challenge",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [750, 100]
+    },
+    {
+      "parameters": {
+        "url": "https://openrouter.ai/api/v1/chat/completions",
+        "method": "POST",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer {{ $credentials.openrouterApiKey }}"
+            }
+          ]
+        },
+        "jsonParameters": true,
+        "jsonData": {
+          "model": "deepseek/deepseek-chat",
+          "messages": [
+            {
+              "role": "system",
+              "content": "Eres el asistente de atención al cliente de Burger Rocket 🚀, un restaurante de hamburguesas premium. Sé amable, profesional y ayuda a los clientes con información sobre el menú, horarios, ubicación y pedidos. Responde en español de forma concisa."
+            },
+            {
+              "role": "user",
+              "content": "={{ $json.body.entry[0].changes[0].value.messages[0].text.body }}"
+            }
+          ]
+        }
+      },
+      "id": "4",
+      "name": "LLM (Deepseek)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [750, 300],
+      "credentials": {
+        "httpHeaderAuth": "openRouterAuth"
+      }
+    },
+    {
+      "parameters": {
+        "resource": "record",
+        "action": "create",
+        "table": "conversations",
+        "columnsUi": {
+          "columnValues": [
+            {
+              "columnName": "phone_number",
+              "columnValue": "={{ $json.body.entry[0].changes[0].value.messages[0].from }}"
+            },
+            {
+              "columnName": "message_text",
+              "columnValue": "={{ $json.body.entry[0].changes[0].value.messages[0].text.body }}"
+            },
+            {
+              "columnName": "response_text",
+              "columnValue": "={{ $json.body.choices[0].message.content }}"
+            },
+            {
+              "columnName": "timestamp",
+              "columnValue": "={{ new Date().toISOString() }}"
+            }
+          ]
+        }
+      },
+      "id": "5",
+      "name": "Save to Supabase",
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [1000, 300],
+      "credentials": {
+        "supabaseApi": "supabaseAuth"
+      }
+    },
+    {
+      "parameters": {
+        "url": "https://graph.instagram.com/v18.0/={{ $env.WHATSAPP_PHONE_NUMBER_ID }}/messages",
+        "method": "POST",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer {{ $env.WHATSAPP_ACCESS_TOKEN }}"
+            }
+          ]
+        },
+        "jsonParameters": true,
+        "jsonData": {
+          "messaging_product": "whatsapp",
+          "to": "={{ $json.body.entry[0].changes[0].value.messages[0].from }}",
+          "type": "text",
+          "text": {
+            "preview_url": false,
+            "body": "={{ $json.body.choices[0].message.content }}"
+          }
+        }
+      },
+      "id": "6",
+      "name": "Send WhatsApp Message",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [1250, 300]
+    }
+  ],
+  "connections": {
+    "1": {
+      "main": [
+        [
+          {
+            "node": "2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "2": {
+      "main": [
+        [
+          {
+            "node": "3",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "4": {
+      "main": [
+        [
+          {
+            "node": "5",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "5": {
+      "main": [
+        [
+          {
+            "node": "6",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}
